@@ -7,7 +7,6 @@ import TasksPages from "./pages/Taskspages";
 
 function App() {
   const [usuarios, setUsuarios] = useState([]);
-
   return (
     <Router>
       <div className="min-h-screen bg-gray-100">
