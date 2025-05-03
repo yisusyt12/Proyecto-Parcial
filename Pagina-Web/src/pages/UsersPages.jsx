@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import api from "./../Services/API.js";
 
 function UsersPages({usuarios, setUsuarios}){
 
@@ -138,3 +138,5 @@ function UsersPages({usuarios, setUsuarios}){
 }
 
 export default UsersPages;
+
+export { api };

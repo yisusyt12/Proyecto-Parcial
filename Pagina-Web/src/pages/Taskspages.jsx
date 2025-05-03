@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import api from "./../Services/API.js";
 
 function TasksPages({ usuarios }) {
   const [tareas, setTareas] = useState([]);
@@ -172,3 +173,5 @@ function TasksPages({ usuarios }) {
 }
 
 export default TasksPages;
+
+export { api };
