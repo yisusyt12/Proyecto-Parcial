@@ -4,8 +4,16 @@ import models, schemas
 from database import SessionLocal, engine, Base
 
 Base.metadata.create_all(bind=engine)
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+app = FastAPI(CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],)
+
+
 
 # bd
 def get_db():
@@ -43,4 +51,3 @@ def create_task_for_user(user_id: int, task: schemas.TaskCreate, db: Session = D
 def list_tasks(db: Session = Depends(get_db)):
     return db.query(models.Task).all()
 
-print("Hola mundo")
