@@ -1,14 +1,12 @@
 import axios from "axios";
 
-
 const api = axios.create({
-  baseURL: "http://localhost:5173/users", 
+  baseURL: "http://127.0.0.1:8000", 
   headers: {
     "Content-Type": "application/json",
     Authorization: "Bearer ", 
   },
 }); 
-
 
 export async function fetchData(endpoint) {
   try {
@@ -35,7 +33,7 @@ export async function postData(endpoint, data) {
 
 
 const api2 = axios.create({
-  baseURL: "http://localhost:5173/tasks/api2", 
+  baseURL: "http://127.0.0.1:8000", 
   headers: {
     "Content-Type": "application/json",
     Authorization: "Bearer ", 

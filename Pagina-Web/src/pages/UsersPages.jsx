@@ -1,142 +1,99 @@
-import { useState } from "react";
-import api from "./../Services/API.js";
+import { useState, useEffect } from "react";
+import { fetchData, postData } from "../Services/API";
 
-function UsersPages({usuarios, setUsuarios}){
-
+function UsersPages({ usuarios, setUsuarios }) {
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
   const [editingId, setEditingId] = useState(null);
 
   
-  const handleSubmit = () => {
-    
+  useEffect(() => {
+    fetchData("/users/")
+      .then(data => setUsuarios(data))
+      .catch(error => console.error("Error al cargar usuarios:", error));
+  }, [setUsuarios]);
+
+  const handleSubmit = async () => {
     if (!nombre.trim() || !correo.trim()) return;
 
     const payload = {
-      nombre: nombre.trim(),
-      correo: correo.trim(),
+      name: nombre.trim(), 
+      email: correo.trim(), 
     };
 
-    if (editingId) {
-      
-      setUsuarios(usuarios.map(u =>
-        u.id === editingId ? { ...u, ...payload } : u
-      ));
-    } else {
-      
-      setUsuarios([
-        ...usuarios,
-        { id: Date.now(), ...payload }
-      ]);
+    try {
+      const newUser = await postData("/users/", payload);
+      setUsuarios([...usuarios, newUser]);
+      setNombre("");
+      setCorreo("");
+      setEditingId(null);
+    } catch (error) {
+      console.error("Error al crear usuario:", error);
     }
-
-    
-    setNombre("");
-    setCorreo("");
-    setEditingId(null);
-  };
-
-  
-  const eliminarUsuario = (id) => {
-    if (!window.confirm("¿Eliminar este usuario?")) return;
-    setUsuarios(usuarios.filter(u => u.id !== id));
-  };
-
- 
-  const editarUsuario = (usuario) => {
-    setNombre(usuario.nombre);
-    setCorreo(usuario.correo);
-    setEditingId(usuario.id);
   };
 
   return (
-    <div  style={{ display: "flex", flexDirection: "column", height: "100vh"}}>
-    <div style={{ textAlign: "center", padding: "1rem",} }>
-      <h1>Gestión de usuarios</h1>
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+      <div style={{ textAlign: "center", padding: "1rem" }}>
+        <h1>Gestión de usuarios</h1>
       </div>
-      <div style={{  textAlign: "center", marginBottom: "1rem" }}>
-        <input 
-        
-        style={{color: "black",
-          marginLeft: "1rem",
-          padding: "0.5rem",
-        }}
-         name="text"
-          class="input"
+
+      <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+        <input
+          style={{ color: "black", marginLeft: "1rem", padding: "0.5rem" }}
           type="text"
           placeholder="Nombre"
-          
           value={nombre}
-          onChange={e => setNombre(e.target.value)}
-          
+          onChange={(e) => setNombre(e.target.value)}
         />
         <input
-        style={{color: "black",
-           marginLeft: "1rem",
-          padding: "0.5rem",
-        }}
-          name="email"
-          class="input"
+          style={{ color: "black", marginLeft: "1rem", padding: "0.5rem" }}
           type="email"
           placeholder="Correo"
           value={correo}
-          onChange={e => setCorreo(e.target.value)}
+          onChange={(e) => setCorreo(e.target.value)}
         />
-
-      
-        <button 
-        style={{  marginLeft: "1rem",
-          padding: "0.9rem",}}
-        onClick={handleSubmit}>
-          <span class="circle1"></span>
-    <span class="circle2"></span>
-    <span class="circle3"></span>
-    <span class="circle4"></span>
-    <span class="circle5"></span>
-
+        <button
+          style={{ marginLeft: "1rem", padding: "0.9rem" }}
+          onClick={handleSubmit}
+        >
           {editingId ? "Guardar cambios" : "Agregar Usuario"}
         </button>
       </div>
-   
-      <div style={{display: "flex", justifyContent: "center",}}>
-      <table 
-       class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
-      border={1} cellPadding={25}>
-        <thead
-         class= "w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-          <tr>
-             <th>Nombre</th>
-            <th>Correo</th>
-            <th>Acciones</th> 
-          </tr>
-        </thead>
-        <tbody>
-          {usuarios.map(usuario => (
-            <tr key={usuario.id}>
-              <td>{usuario.nombre}</td>
-              <td>{usuario.correo}</td>
-              <td  >
-                
-                <button 
-                onClick={() => editarUsuario(usuario)}>
-                  Editar
-                </button>
-                
-                <button onClick={() => eliminarUsuario(usuario.id)}>
-                  Eliminar
-                </button>
-              </td>
+
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <table border={1} cellPadding={25}>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {usuarios.map((usuario) => (
+              <tr key={usuario.id}>
+                <td>{usuario.name}</td>
+                <td>{usuario.email}</td>
+                <td>
+                  <button onClick={() => editarUsuario(usuario)}>Editar</button>
+                  {/* Eliminar desde backend aún no está implementado */}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 
-  
+  function editarUsuario(usuario) {
+    setNombre(usuario.name);
+    setCorreo(usuario.email);
+    setEditingId(usuario.id);
+  }
 }
 
 export default UsersPages;
 
-export { api };
+
