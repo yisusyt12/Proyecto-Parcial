@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000", 
+  baseURL: import.meta.env.VITE_API_URL, 
   headers: {
     "Content-Type": "application/json",
     Authorization: "Bearer ", 
@@ -33,10 +33,10 @@ export async function postData(endpoint, data) {
 
 
 const api2 = axios.create({
-  baseURL: "http://127.0.0.1:8000", 
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: "Bearer ", 
+  baseURL: import.meta.env.VITE_API_URL, 
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer ",
   },
 });
 

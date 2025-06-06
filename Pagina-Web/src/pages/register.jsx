@@ -14,7 +14,7 @@ function Register() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/register/?name=Anon&email=${email}&password=${password}`,
+        `https://proyecto-parcial-ubn6.onrender.com/register/?name=Anon&email=${email}&password=${password}`,
         {
           method: "POST",
         }
