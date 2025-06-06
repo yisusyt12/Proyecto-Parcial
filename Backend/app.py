@@ -16,7 +16,8 @@ app.include_router(login.router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["https://pagina-web-g9qi.onrender.com",
+                   "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
