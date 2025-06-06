@@ -4,7 +4,8 @@ import models, schemas
 from database import SessionLocal, engine, Base
 from fastapi.middleware.cors import CORSMiddleware
 from routes import login, users
- 
+from auth import get_current_user
+from models import LoginCredential
 
 
 Base.metadata.create_all(bind=engine)
@@ -56,12 +57,21 @@ def update_task(task_id: int, task_data: schemas.TaskCreate, db: Session = Depen
 
 
 @app.get("/users/", response_model=list[schemas.User])
-def list_users(db: Session = Depends(get_db)):
+def list_users(
+    db: Session = Depends(get_db),
+    current_user: LoginCredential = Depends(get_current_user)
+):
     return db.query(models.User).all()
 
 
+
 @app.post("/users/{user_id}/tasks/", response_model=schemas.Task)
-def create_task_for_user(user_id: int, task: schemas.TaskCreate, db: Session = Depends(get_db)):
+def create_task_for_user(
+    user_id: int,
+    task: schemas.TaskCreate,
+    db: Session = Depends(get_db),
+    current_user: LoginCredential = Depends(get_current_user)
+):
     task_data = task.dict()
     task_data.pop("user_id", None)  
     db_task = models.Task(**task_data, user_id=user_id)
@@ -73,8 +83,12 @@ def create_task_for_user(user_id: int, task: schemas.TaskCreate, db: Session = D
 
 
 @app.get("/tasks/", response_model=list[schemas.Task])
-def list_tasks(db: Session = Depends(get_db)):
+def list_tasks(
+    db: Session = Depends(get_db),
+    current_user: LoginCredential = Depends(get_current_user)
+):
     return db.query(models.Task).all()
+
 
 
 @app.delete("/tasks/{task_id}/")

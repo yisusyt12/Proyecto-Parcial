@@ -1,12 +1,20 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL, 
+  baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "Content-Type": "application/json",
-    Authorization: "Bearer ", 
   },
-}); 
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 
 export async function fetchData(endpoint) {
   try {
@@ -32,13 +40,7 @@ export async function postData(endpoint, data) {
 }
 
 
-const api2 = axios.create({
-  baseURL: import.meta.env.VITE_API_URL, 
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer ",
-  },
-});
+
 
 export async function fetchData2(endpoint) {
   try {
