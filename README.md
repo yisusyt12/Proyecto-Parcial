@@ -3,4 +3,6 @@
 Este proyecto consiste en crear usuarios y asignarle tareas 
 en donde se puede revisar el estado de la tarea
  y quien la tiene asignada.
- 
+
+
+Integrantes: Jesús Rivera, Antony Leiva, Luis Manjarres.
