@@ -1,34 +1,126 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { fetchData, postData } from "../Services/API";
+import api from "../Services/API";
+
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
+
+import { ModuleRegistry } from "ag-grid-community";
+import { ClientSideRowModelModule } from "ag-grid-community";
+ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 function UsersPages({ usuarios, setUsuarios }) {
+  const [editingId, setEditingId] = useState(null);
   const [nombre, setNombre] = useState("");
   const [correo, setCorreo] = useState("");
-  const [editingId, setEditingId] = useState(null);
 
-  
+  const cargarUsuarios = async () => {
+    try {
+      const data = await fetchData("/users/");
+      setUsuarios(data);
+    } catch (error) {
+      console.error("Error al cargar usuarios:", error);
+    }
+  };
+
+  const editarUsuario = (usuario) => {
+    setNombre(usuario.name);
+    setCorreo(usuario.email || "");
+    setEditingId(usuario.id);
+  };
+
+  const eliminarUsuario = async (id) => {
+    if (!window.confirm("¿Eliminar este usuario?")) return;
+    try {
+      await api.delete(`/users/${id}`);
+      await cargarUsuarios();
+    } catch (error) {
+      console.error("Error al eliminar usuario:", error);
+    }
+  };
+
+  const [columnDefs] = useState([
+    {
+      headerName: "Nombre",
+      field: "name",
+      sortable: true,
+      filter: true,
+      flex: 1,
+    },
+    {
+      headerName: "Correo",
+      field: "email",
+      sortable: true,
+      filter: true,
+      flex: 1,
+    },
+    {
+      headerName: "Acciones",
+      field: "acciones",
+      minWidth: 180,
+      flex: 1,
+      cellRenderer: (params) => (
+        <div style={{ display: "flex", justifyContent: "center", gap: "0.5rem" }}>
+          <button
+            onClick={() => editarUsuario(params.data)}
+            style={{
+              padding: "5px 10px",
+              backgroundColor: "#000",
+              color: "#fff",
+              border: "none",
+              borderRadius: "6rem",
+              cursor: "pointer",
+            }}
+          >
+            Editar
+          </button>
+          <button
+            onClick={() => eliminarUsuario(params.data.id)}
+            style={{
+              padding: "5px 10px",
+              backgroundColor: "#d32f2f",
+              color: "#fff",
+              border: "none",
+              borderRadius: "6rem",
+              cursor: "pointer",
+            }}
+          >
+            Eliminar
+          </button>
+        </div>
+      ),
+    },
+  ]);
+
   useEffect(() => {
-    fetchData("/users/")
-      .then(data => setUsuarios(data))
-      .catch(error => console.error("Error al cargar usuarios:", error));
-  }, [setUsuarios]);
+    cargarUsuarios();
+  }, []);
 
-  const handleSubmit = async () => {
-    if (!nombre.trim() || !correo.trim()) return;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    const payload = {
-      name: nombre.trim(), 
-      email: correo.trim(), 
-    };
+    const name = nombre.trim();
+    const email = correo.trim();
+
+    if (!name || !email) return;
+
+    const payload = { name, email };
 
     try {
-      const newUser = await postData("/users/", payload);
-      setUsuarios([...usuarios, newUser]);
+      if (editingId) {
+        await api.put(`/users/${editingId}`, payload);
+      } else {
+        await postData("/users/", payload);
+      }
+
+      await cargarUsuarios();
+
       setNombre("");
       setCorreo("");
       setEditingId(null);
     } catch (error) {
-      console.error("Error al crear usuario:", error);
+      console.error("Error al guardar usuario:", error);
     }
   };
 
@@ -38,62 +130,73 @@ function UsersPages({ usuarios, setUsuarios }) {
         <h1>Gestión de usuarios</h1>
       </div>
 
-      <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+      <form onSubmit={handleSubmit} style={{ textAlign: "center", marginBottom: "1rem" }}>
         <input
-          style={{ color: "black", marginLeft: "1rem", padding: "0.5rem" }}
-          type="text"
-          placeholder="Nombre"
+          name="nombre"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
+          style={{ borderRadius: "6rem", color: "black", marginLeft: "1rem", padding: "0.5rem" }}
+          type="text"
+          placeholder="Nombre"
         />
         <input
-          style={{ color: "black", marginLeft: "1rem", padding: "0.5rem" }}
-          type="email"
-          placeholder="Correo"
+          name="email"
           value={correo}
           onChange={(e) => setCorreo(e.target.value)}
+          style={{ borderRadius: "6rem", color: "black", marginLeft: "1rem", padding: "0.5rem" }}
+          type="email"
+          placeholder="Correo"
         />
         <button
-          style={{ marginLeft: "1rem", padding: "0.9rem" }}
-          onClick={handleSubmit}
+          type="submit"
+          style={{ borderRadius: "6rem", marginLeft: "1rem", padding: "0.8rem" }}
         >
           {editingId ? "Guardar cambios" : "Agregar Usuario"}
         </button>
-      </div>
+        {editingId && (
+          <button
+            type="button"
+            onClick={() => {
+              setNombre("");
+              setCorreo("");
+              setEditingId(null);
+            }}
+            style={{
+              borderRadius: "6rem",
+              marginLeft: "1rem",
+              padding: "0.9rem",
+              backgroundColor: "#d32f2f",
+              color: "#fff",
+            }}
+          >
+            Cancelar
+          </button>
+        )}
+      </form>
 
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <table border={1} cellPadding={25}>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Correo</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {usuarios.map((usuario) => (
-              <tr key={usuario.id}>
-                <td>{usuario.name}</td>
-                <td>{usuario.email}</td>
-                <td>
-                  <button onClick={() => editarUsuario(usuario)}>Editar</button>
-                  {/* Eliminar desde backend aún no está implementado */}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="ag-theme-alpine" style={{
+        height: "auto",
+        width: "98%",
+        maxWidth: "1400px",
+        margin: "1rem auto",
+        borderRadius: "11px",
+        padding: "1rem",
+        backgroundColor: "#fff",
+        overflow: "hidden",
+        boxShadow: "0 0 8px rgba(0,0,0,0.1)",
+        justifyContent: "center",
+      }}>
+        <AgGridReact
+          rowData={usuarios}
+          columnDefs={columnDefs}
+          pagination={true}
+          paginationPageSize={5}
+          domLayout="autoHeight"
+          modules={[ClientSideRowModelModule]}
+        />
       </div>
     </div>
   );
-
-  function editarUsuario(usuario) {
-    setNombre(usuario.name);
-    setCorreo(usuario.email);
-    setEditingId(usuario.id);
-  }
 }
 
 export default UsersPages;
-
-

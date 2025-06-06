@@ -1,6 +1,18 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
+  const navigate = useNavigate();
+
+  const  token = localStorage.getItem("token");
+  if (!token) return null;
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");   
+  };
+  
+
+
   return (
     <nav
       style={{
@@ -11,7 +23,7 @@ export default function Navbar() {
         position: "fixed",
         top: 0,
         left: 0,
-        zIndex: 1000, 
+        zIndex: 1000,
       }}
     >
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "1rem" }}>
@@ -43,6 +55,23 @@ export default function Navbar() {
         >
           Lista de Tareas
         </NavLink>
+
+       
+        <button
+          onClick={handleLogout}
+          style={{
+            padding: "0.5rem 1rem",
+            backgroundColor: "#d32f2f",
+            color: "#fff",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+            marginLeft: "1rem",
+          }}
+        >
+          Cerrar sesión
+        </button>
+        
       </div>
     </nav>
   );

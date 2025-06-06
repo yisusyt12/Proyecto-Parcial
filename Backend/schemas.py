@@ -1,15 +1,34 @@
-from pydantic import BaseModel # type: ignore
+from pydantic import BaseModel
+from typing import Optional, List
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+
+class UserCreateSimple(BaseModel):
+    name: str
+    email: Optional[str] = None
+
+class UserRegister(BaseModel):
+    name: str
+    email: str
+    password: str
+
 
 class TaskBase(BaseModel):
     title: str
-    description: str | None = None
+    description: str
 
 class TaskCreate(TaskBase):
-    pass
+    status: str
+    user_id: int
 
 class Task(TaskBase):
     id: int
     user_id: int
+    status: str
 
     model_config = {
         "from_attributes": True
@@ -18,14 +37,20 @@ class Task(TaskBase):
 
 class UserBase(BaseModel):
     name: str
+    email: Optional[str] = None
 
 class UserCreate(UserBase):
     pass
 
 class User(UserBase):
     id: int
-    tasks: list[Task] = []
+    tasks: List[Task] = []
 
     model_config = {
         "from_attributes": True
     }
+    
+    
+class CredentialCreate(BaseModel):
+    email: str
+    password: str

@@ -12,8 +12,9 @@ DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 
 
+
 conn = psycopg2.connect(
-    dbname="postgres",
+    dbname="railway",
     user=DB_USER,
     password=DB_PASSWORD,
     host=DB_HOST,
@@ -33,3 +34,6 @@ else:
 
 cursor.close()
 conn.close()
+
+
+
