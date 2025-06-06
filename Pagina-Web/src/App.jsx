@@ -4,7 +4,8 @@ import Navbar from "./components/Navbar";
 import UsersPages from "./pages/UsersPages";
 import TasksPages from "./pages/Taskspages";
 import Login from "./pages/login";
-import Register from "./pages/register"; 
+import Register from "./pages/register";
+import PrivateRoute from "./components/PrivateRoute"; 
 
 function App() {
   const [usuarios, setUsuarios] = useState([]);
@@ -21,11 +22,19 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route
                 path="/users"
-                element={<UsersPages usuarios={usuarios} setUsuarios={setUsuarios} />}
+                element={
+                  <PrivateRoute>
+                    <UsersPages usuarios={usuarios} setUsuarios={setUsuarios} />
+                  </PrivateRoute>
+                }
               />
               <Route
                 path="/tasks"
-                element={<TasksPages usuarios={usuarios} />}
+                element={
+                  <PrivateRoute>
+                    <TasksPages usuarios={usuarios} />
+                  </PrivateRoute>
+                }
               />
               <Route path="*" element={<Navigate to="/users" replace />} />
             </Routes>
