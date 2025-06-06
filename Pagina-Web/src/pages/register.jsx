@@ -13,12 +13,20 @@ function Register() {
     setError("");
 
     try {
-      const response = await fetch(
-        `https://proyecto-parcial-ubn6.onrender.com/register/?name=Anon&email=${email}&password=${password}`,
-        {
-          method: "POST",
-        }
-      );
+      
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/register`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    name: "Anon",
+    email,
+    password,
+  }),
+});
+
 
       if (!response.ok) {
         throw new Error("Error al registrar usuario");
